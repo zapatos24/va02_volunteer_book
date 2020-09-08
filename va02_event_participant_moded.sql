@@ -40,11 +40,11 @@ left outer join
 -- add scheduled boolean
 (
   select vanid,
-  		 CASE WHEN last_shift > getdate() THEN True
-  		 ELSE False
+  		 CASE WHEN last_shift > getdate() THEN 'True'
+  		 ELSE 'False'
   		 END as sched_bool
   from
-    (
+    (--get the latest date a person has been shifted
       select distinct vanid, 
                  last_value(date) over (
                     partition by vanid
