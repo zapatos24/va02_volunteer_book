@@ -1,6 +1,7 @@
 -- cleaned event participants with today-14 and today-30
 select p.vanid, p.date, p.name, p.phone, p.status, p.recruited_by, p.signup_date,
-			 p.today14, p.today30, r.organizer, lr.last_recruit, ls.sched_bool,
+			 p.today14, p.today30, r.organizer, lr.last_recruit, ls.sched_bool, comp.cnt_comp,
+       flk.cnt_flake,
        CASE WHEN r.organizer = 'Giordano, Peggy' and lr.last_recruit = 'Mackey, Erin' THEN lr.last_recruit
        			WHEN r.organizer is not null THEN r.organizer
             WHEN r.organizer is null and lr.last_recruit is not null THEN lr.last_recruit
@@ -9,11 +10,12 @@ select p.vanid, p.date, p.name, p.phone, p.status, p.recruited_by, p.signup_date
 from(
 	 select *, trunc(today-14) as today14, 
   				trunc(today-30) as today30
-		from(
-  			select vanid, date, name, phone, status, recruited_by, 
-      			   signup_date, getdate() as today
-  			from sandbox_va_2.va02_event_participants
-        )
+	from(
+  	select vanid, date, name, phone, status, recruited_by, 
+      		 signup_date, getdate() as today
+  	from sandbox_va_2.va02_event_participants
+    where event not ilike '_Cancelled%'
+      )
     ) as p
 
 
@@ -66,6 +68,29 @@ left outer join
 ) as ls
 on p.vanid = ls.vanid
 
+
+--
+-- add total completed shifts
+left outer join
+  (
+    select vanid, COUNT(name) as cnt_comp
+    from sandbox_va_2.va02_event_participants
+    where status = 'Completed'
+    group by vanid
+  ) as comp
+on p.vanid = comp.vanid
+
+
+--
+-- add total declined/no show shifts
+left outer join
+  (
+    select vanid, COUNT(name) as cnt_flake
+    from sandbox_va_2.va02_event_participants
+    where status = 'Declined' or status = 'No Show'
+    group by vanid
+  ) as flk
+on p.vanid = flk.vanid
 
 --
 -- add url for votebuilder: my campaign
