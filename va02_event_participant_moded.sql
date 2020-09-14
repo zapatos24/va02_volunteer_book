@@ -11,7 +11,7 @@ from(
 	 select *, trunc(today-14) as today14, 
   				trunc(today-30) as today30
 	from(
-  	select vanid, date, name, phone, status, recruited_by, 
+  	select vanid, event, date, time, name, phone, status, recruited_by, 
       		 signup_date, getdate() as today
   	from sandbox_va_2.va02_event_participants
     where event not ilike '_Cancelled%'
@@ -19,20 +19,16 @@ from(
     ) as p
 
 
---
 -- add turfed FO
 left outer join
-
 (
   select vanid, organizer from sandbox_va_2.region_assignment
 ) as r
 on p.vanid = r.vanid
 
 
---
 --add latest recruit
 left outer join
-
 (
   select distinct vanid,
          last_value(recruited_by) over (
@@ -46,7 +42,6 @@ left outer join
 on p.vanid = lr.vanid
 
 
---
 -- add scheduled boolean
 left outer join
 (
@@ -69,37 +64,88 @@ left outer join
 on p.vanid = ls.vanid
 
 
---
 -- add total completed shifts
 left outer join
   (
     select vanid, COUNT(name) as cnt_comp
     from sandbox_va_2.va02_event_participants
-    where status = 'Completed'
+    where status = 'Completed' and event not ilike '_Cancelled%'
     group by vanid
   ) as comp
 on p.vanid = comp.vanid
 
 
---
 -- add total declined/no show shifts
 left outer join
   (
     select vanid, COUNT(name) as cnt_flake
     from sandbox_va_2.va02_event_participants
-    where status = 'Declined' or status = 'No Show'
+    where status = 'Declined' or status = 'No Show' and event not ilike '_Cancelled%'
     group by vanid
   ) as flk
 on p.vanid = flk.vanid
 
---
+
 -- add url for votebuilder: my campaign
 
 
---
+
 -- add status for super_active, active, almost_active, drop_off
 
+-- count how many completed shifts over 14 day rolling window for each van id 
+left outer join
+  (
+    select act.vanid, act.date, sum(act.count_t2) as count_14
+    from
+    (
+       select t1.vanid, t1.date, t2.count_t2
+       from
+       (
+         select sub1.vanid, sub1.date, count(sub1.event) as count_t1
+         from sandbox_va_2.va02_event_participants as sub1
+         where sub1.event not ilike '_Cancelled%' and sub1.status = 'Completed'
+         group by 1,2
+       ) as t1
+       join 
+       (
+         select sub2.vanid, sub2.date, count(sub2.event) as count_t2
+         from sandbox_va_2.va02_event_participants as sub2
+         where event not ilike '_Cancelled%' and sub2.status = 'Completed'
+         group by 1,2
+       ) as t2
+       on t1.vanid = t2.vanid and t2.date between dateadd(day, -13, t1.date) and t1.date
+    ) as act
+    group by 1,2
+    order by 1,2
+  )
 
---
+-- count how many completed shifts over 30 day rolling window for each van id
+left outer join
+  (
+    select act.vanid, act.date, sum(act.count_t2) as count_30
+    from
+    (
+       select t1.vanid, t1.date, t2.count_t2
+       from
+       (
+         select sub1.vanid, sub1.date, count(sub1.event) as count_t1
+         from sandbox_va_2.va02_event_participants as sub1
+         where sub1.event not ilike '_Cancelled%' and sub1.status = 'Completed'
+         group by 1,2
+       ) as t1
+       join 
+       (
+         select sub2.vanid, sub2.date, count(sub2.event) as count_t2
+         from sandbox_va_2.va02_event_participants as sub2
+         where event not ilike '_Cancelled%' and sub2.status = 'Completed'
+         group by 1,2
+       ) as t2
+       on t1.vanid = t2.vanid and t2.date between dateadd(day, -29, t1.date) and t1.date
+    ) as act
+    group by 1,2
+    order by 1,2
+  )
+  
+  
 -- add flake status 
 
