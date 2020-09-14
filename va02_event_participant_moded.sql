@@ -1,7 +1,7 @@
 -- cleaned event participants with today-14 and today-30
 select p.vanid, p.date, p.name, p.phone, p.status, p.recruited_by, p.signup_date,
-			 p.today14, p.today30, r.organizer, lr.last_recruit, ls.sched_bool, comp.cnt_comp,
-       flk.cnt_flake,
+			 p.today14, p.today30, r.organizer, lr.last_recruit, ls.sched_bool, comp.cnt_comp_tot,
+       flk.cnt_flake, comp_14.cnt_comp_14, comp_30.cnt_comp_30
        CASE WHEN r.organizer = 'Giordano, Peggy' and lr.last_recruit = 'Mackey, Erin' THEN lr.last_recruit
        			WHEN r.organizer is not null THEN r.organizer
             WHEN r.organizer is null and lr.last_recruit is not null THEN lr.last_recruit
@@ -67,7 +67,7 @@ on p.vanid = ls.vanid
 -- add total completed shifts
 left outer join
   (
-    select vanid, COUNT(name) as cnt_comp
+    select vanid, COUNT(name) as cnt_comp_tot
     from sandbox_va_2.va02_event_participants
     where status = 'Completed' and event not ilike '_Cancelled%'
     group by vanid
@@ -95,7 +95,7 @@ on p.vanid = flk.vanid
 -- count how many completed shifts over 14 day rolling window for each van id 
 left outer join
   (
-    select act.vanid, act.date, sum(act.count_t2) as count_14
+    select act.vanid, act.date, sum(act.count_t2) as cnt_comp_14
     from
     (
        select t1.vanid, t1.date, t2.count_t2
@@ -117,12 +117,13 @@ left outer join
     ) as act
     group by 1,2
     order by 1,2
-  )
+  ) as comp_14
+  on p.vanid = comp_14.vanid and p.date = comp_14.date
 
 -- count how many completed shifts over 30 day rolling window for each van id
 left outer join
   (
-    select act.vanid, act.date, sum(act.count_t2) as count_30
+    select act.vanid, act.date, sum(act.count_t2) as cnt_comp_30
     from
     (
        select t1.vanid, t1.date, t2.count_t2
@@ -144,7 +145,8 @@ left outer join
     ) as act
     group by 1,2
     order by 1,2
-  )
+  ) as comp_30
+  on p.vanid = comp_30.vanid and p.date = comp_30.date
   
   
 -- add flake status 
