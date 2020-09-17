@@ -1,7 +1,12 @@
+DROP TABLE IF EXISTS sandbox_va_2.va02_event_p_mod;
+
+CREATE TABLE sandbox_va_2.va02_event_p_mod
+AS
+(
 -- cleaned event participants with today-14 and today-30
 select p.vanid, p.date, p.name, p.phone, p.status, p.recruited_by, p.signup_date,
 			 p.today14, p.today30, r.organizer, lr.last_recruit, ls.sched_bool, comp.cnt_comp_tot,
-       flk.cnt_flake, comp_14.cnt_comp_14, comp_30.cnt_comp_30
+       flk.cnt_flake, comp_14.cnt_comp_14, comp_30.cnt_comp_30,
        CASE WHEN r.organizer = 'Giordano, Peggy' and lr.last_recruit = 'Mackey, Erin' THEN lr.last_recruit
        			WHEN r.organizer is not null THEN r.organizer
             WHEN r.organizer is null and lr.last_recruit is not null THEN lr.last_recruit
@@ -10,12 +15,12 @@ select p.vanid, p.date, p.name, p.phone, p.status, p.recruited_by, p.signup_date
 from(
 	 select *, trunc(today-14) as today14, 
   				trunc(today-30) as today30
-	from(
-  	select vanid, event, date, time, name, phone, status, recruited_by, 
-      		 signup_date, getdate() as today
-  	from sandbox_va_2.va02_event_participants
+	 from(
+  	select d.vanid, d.event, d.date, d.time, d.name, d.phone, d.status, d.recruited_by, 
+      		 d.signup_date, getdate() as today
+  	from sandbox_va_2.va02_event_participants as d
     where event not ilike '_Cancelled%'
-      )
+       )
     ) as p
 
 
@@ -150,4 +155,4 @@ left outer join
   
   
 -- add flake status 
-
+)
