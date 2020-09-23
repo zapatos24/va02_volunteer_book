@@ -7,11 +7,13 @@ AS
 select p.vanid, p.date, p.name, p.phone, p.status, p.recruited_by, p.signup_date,
 			 p.today14, p.today30, r.organizer, lr.last_recruit, ls.sched_bool, comp.cnt_comp_tot,
        flk.cnt_flake, comp_14.cnt_comp_14, comp_30.cnt_comp_30,
+  		 -- create column for proper organizer when deciding between recruited by and turfed FO
        CASE WHEN r.organizer = 'Giordano, Peggy' and lr.last_recruit = 'Mackey, Erin' THEN lr.last_recruit
        			WHEN r.organizer is not null THEN r.organizer
             WHEN r.organizer is null and lr.last_recruit is not null THEN lr.last_recruit
             ELSE null
             END as proper_organizer
+
 from(
 	 select *, trunc(today-14) as today14, 
   				trunc(today-30) as today30
@@ -89,13 +91,7 @@ left outer join
     group by vanid
   ) as flk
 on p.vanid = flk.vanid
-
-
--- add url for votebuilder: my campaign
-
-
-
--- add status for super_active, active, almost_active, drop_off
+  
 
 -- count how many completed shifts over 14 day rolling window for each van id 
 left outer join
@@ -153,6 +149,5 @@ left outer join
   ) as comp_30
   on p.vanid = comp_30.vanid and p.date = comp_30.date
   
-  
--- add flake status 
 )
+
