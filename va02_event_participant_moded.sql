@@ -2,7 +2,6 @@ DROP TABLE IF EXISTS sandbox_va_2.va02_event_p_mod;
 
 CREATE TABLE sandbox_va_2.va02_event_p_mod
 AS
-(
 -- cleaned event participants with today-14 and today-30
 select p.vanid, p.date, p.name, p.phone, p.status, p.recruited_by, p.signup_date,
 			 p.today14, p.today30, r.organizer, lr.last_recruit, ls.sched_bool, comp.cnt_comp_tot,
@@ -148,6 +147,4 @@ left outer join
     order by 1,2
   ) as comp_30
   on p.vanid = comp_30.vanid and p.date = comp_30.date
-  
-)
 
