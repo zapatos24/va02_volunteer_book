@@ -2,7 +2,6 @@ DROP TABLE IF EXISTS sandbox_va_2.va02_event_p_currstat;
 
 CREATE TABLE sandbox_va_2.va02_event_p_currstat
 AS
-(
   select mod.vanid,	mod.date,	mod.name,	mod.phone, mod.status,	mod.recruited_by,	mod.signup_date, 
   			 mod.today14,	mod.today30, mod.organizer, mod.last_recruit, mod.sched_bool, mod.cnt_comp_tot,	
   			 mod.cnt_flake, mod.cnt_comp_14, mod.cnt_comp_30, mod.proper_organizer, status.curr_status
@@ -49,4 +48,4 @@ AS
   ) as status
   on status.vanid = mod.vanid
   
- )
+  
