@@ -26,6 +26,7 @@ def main():
     print(df.head())
     
     df['myc_url'] = df['vanid'].apply(lambda vanid: id_to_url(vanid))
+    df.sort_values('date', inplace=True)
     
     civis.io.dataframe_to_civis(df, database='DigiDems', table='sandbox_va_2.va02_event_p_url',
                                 existing_table_rows='truncate')
