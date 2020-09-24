@@ -3,7 +3,10 @@ DROP TABLE IF EXISTS sandbox_va_2.va02_event_p_mod;
 CREATE TABLE sandbox_va_2.va02_event_p_mod
 AS
 -- cleaned event participants with today-14 and today-30
-select p.vanid, p.date, p.name, p.phone, p.status, p.recruited_by, p.signup_date,
+select p.vanid, p.date, p.name, 
+  		 left(p.name, charindex(',', p.name)-1) as last_name, 
+  		 right(p.name, len(p.name) - charindex(',', p.name)) as first_name,
+       p.phone, p.status, p.recruited_by, p.signup_date,
 			 p.today14, p.today30, r.organizer, lr.last_recruit, ls.sched_bool, comp.cnt_comp_tot,
        flk.cnt_flake, comp_14.cnt_comp_14, comp_30.cnt_comp_30,
   		 -- create column for proper organizer when deciding between recruited by and turfed FO
