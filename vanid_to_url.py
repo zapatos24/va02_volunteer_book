@@ -29,6 +29,8 @@ def main():
     df.sort_values('date', inplace=True)
     
     civis.io.dataframe_to_civis(df, database='DigiDems', table='sandbox_va_2.va02_event_p_url',
-                                existing_table_rows='truncate')
+                                existing_table_rows='drop')
+
 
 main()
+
