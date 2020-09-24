@@ -4,8 +4,12 @@ CREATE TABLE sandbox_va_2.va02_event_p_mod
 AS
 -- cleaned event participants with today-14 and today-30
 select p.vanid, p.date, p.name, 
-  		 left(p.name, charindex(',', p.name)-1) as last_name, 
-  		 right(p.name, len(p.name) - charindex(',', p.name)) as first_name,
+  		 CASE WHEN charindex(',', p.name) != 0 THEN left(p.name, charindex(',', p.name)-1)
+       			ELSE p.name
+            END as last_name, 
+  		 CASE WHEN charindex(',', p.name) != 0 THEN right(p.name, len(p.name) - charindex(',', p.name))
+       			ELSE p.name
+            END as first_name,
        p.phone, p.status, p.recruited_by, p.signup_date,
 			 p.today14, p.today30, r.organizer, lr.last_recruit, ls.sched_bool, comp.cnt_comp_tot,
        flk.cnt_flake, comp_14.cnt_comp_14, comp_30.cnt_comp_30,
