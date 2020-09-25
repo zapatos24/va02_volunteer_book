@@ -17,7 +17,7 @@ select p.vanid, p.date, p.name,
        CASE WHEN r.organizer = 'Giordano, Peggy' and lr.last_recruit = 'Mackey, Erin' THEN lr.last_recruit
        			WHEN r.organizer is not null THEN r.organizer
             WHEN r.organizer is null and lr.last_recruit is not null THEN lr.last_recruit
-            ELSE null
+            ELSE 'Not Assigned'
             END as proper_organizer
 
 from(
