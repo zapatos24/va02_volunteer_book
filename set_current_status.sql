@@ -45,6 +45,7 @@ AS
         rows between unbounded preceding and unbounded following) as last_cnt_comp_30
         
       from sandbox_va_2.va02_event_p_mod as t
+      where t.date <= getdate()
       ) as latest_count
   ) as status
   on status.vanid = mod.vanid
