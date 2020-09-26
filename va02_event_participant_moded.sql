@@ -43,14 +43,14 @@ on p.vanid = r.vanid
 --add latest recruit
 left outer join
 (
-  select distinct vanid,
-         last_value(recruited_by) over (
+  select distinct recruit_sub.vanid,
+         last_value(recruit_sub.recruited_by) over (
               partition by vanid
-              order by date asc, time asc
+              order by recruit_sub.date asc, recruit_sub.time asc
               rows between unbounded preceding and unbounded following) as last_recruit
-  from sandbox_va_2.va02_event_participants
-  where recruited_by is not null
-  order by vanid
+  from sandbox_va_2.va02_event_participants as recruit_sub
+  where recruit_sub.recruited_by is not null
+  order by recruit_sub.vanid
 ) as lr
 on p.vanid = lr.vanid
 
