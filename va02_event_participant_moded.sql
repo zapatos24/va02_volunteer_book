@@ -64,13 +64,13 @@ left outer join
   		 END as sched_bool
   from
     (--get the latest date a person has been shifted
-      select distinct vanid, 
-                 last_value(date) over (
+      select distinct sched_sub.vanid, 
+                 last_value(sched_sub.date) over (
                     partition by vanid
-                    order by date asc, time asc
+                    order by sched_sub.date asc, sched_sub.time asc
                     rows between unbounded preceding and unbounded following) as last_shift
-      from sandbox_va_2.va02_event_participants
-      where status != 'Cancelled' and status != 'Declined'
+      from sandbox_va_2.va02_event_participants as sched_sub
+      where sched_sub.status != 'Cancelled' and sched_sub.status != 'Declined'
     )
   
 ) as ls
