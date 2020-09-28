@@ -15,38 +15,38 @@ AS
   --join with current status on vanid
   (
     select *, 
-           CASE WHEN latest_count.last_date >= dateadd(day, -13, getdate()) and 
-                     latest_count.last_cnt_comp_14 >= 2 THEN 'super_active'
-                WHEN latest_count.last_date >= dateadd(day, -29, getdate()) and 
-                   latest_count.last_cnt_comp_30 >= 2 THEN 'active'
-                WHEN latest_count.last_date >= dateadd(day, -29, getdate()) and 
-                   latest_count.last_cnt_comp_30 = 1 THEN 'almost_active'
-                ELSE 'drop_off'
-                END as curr_status
+    			 CASE WHEN latest_count.curr_date_comp_14 >= 2 THEN 'super_active'
+   				 WHEN latest_count.curr_date_comp_30 >= 2 THEN 'active'
+ 				   WHEN latest_count.curr_date_comp_30 = 1 THEN 'almost_active'
+ 				   ELSE 'drop_off'
+ 				   END as curr_status
     from
+    (--table of vanid and how many completed shifts in last 14 days
+      select sub1.vanid, sub1.curr_date_comp_14, sub2.curr_date_comp_30
+      from
       (
-      select distinct t.vanid,
-      --latest date vol participated  
-      last_value(t.date) over (
-        partition by vanid
-        order by t.date asc
-        rows between unbounded preceding and unbounded following) as last_date,
-        
-      --latest completed number in last 14 days for latest date
-      last_value(t.cnt_comp_14) over (
-        partition by vanid
-        order by t.date asc
-        rows between unbounded preceding and unbounded following) as last_cnt_comp_14,
-        
-      --latest completed number in last 30 days for latest date
-      last_value(t.cnt_comp_30) over (
-        partition by vanid
-        order by t.date asc
-        rows between unbounded preceding and unbounded following) as last_cnt_comp_30
-        
-      from sandbox_va_2.va02_event_p_mod as t
-      where t.date <= getdate()
-      ) as latest_count
+        select t1.vanid, count(t1.status) as curr_date_comp_14
+        from sandbox_va_2.va02_event_p_mod as t1
+        where t1.date between date_trunc('day', dateadd(day, -13, getdate())) and 
+        date_trunc('day', getdate())
+        and t1.status = 'Completed'
+        group by 1
+      ) as sub1
+
+      left outer join
+
+      (--table of vanid and how many completed shifts in last 30 days
+        select t2.vanid, count(t2.status) as curr_date_comp_30
+        from sandbox_va_2.va02_event_p_mod as t2
+        where t2.date between date_trunc('day', dateadd(day, -29, getdate())) and 
+        date_trunc('day', getdate())
+        and t2.status = 'Completed'
+        group by 1
+      ) as sub2 
+      on sub1.vanid = sub2.vanid
+
+    ) as latest_count
+    
   ) as status
   on status.vanid = mod.vanid
   
