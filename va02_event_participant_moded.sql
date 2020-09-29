@@ -10,7 +10,7 @@ select p.vanid, p.date, p.name,
   		 CASE WHEN charindex(',', p.name) != 0 THEN right(p.name, len(p.name) - charindex(',', p.name))
        			ELSE p.name
             END as first_name,
-       p.phone, p.status, p.recruited_by, p.signup_date,
+       p.phone, p.cell_phone, p.status, p.recruited_by, p.signup_date,
 			 p.today14, p.today30, r.organizer, lr.last_recruit, ls.sched_bool, comp.cnt_comp_tot,
        flk.cnt_flake, comp_14.cnt_comp_14, comp_30.cnt_comp_30,
   		 -- create column for proper organizer when deciding between recruited by and turfed FO
@@ -126,6 +126,7 @@ left outer join
     order by 1,2
   ) as comp_14
   on p.vanid = comp_14.vanid and p.date = comp_14.date
+
 
 -- count how many completed shifts over 30 day rolling window for each van id
 left outer join
