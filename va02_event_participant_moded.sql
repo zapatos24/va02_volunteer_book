@@ -24,7 +24,7 @@ from(
 	 select *, trunc(today-14) as today14, 
   				trunc(today-30) as today30
 	 from(
-  	select d.vanid, d.event, d.date, d.time, d.name, d.phone, d.status, d.recruited_by, 
+  	select d.vanid, d.event, d.date, d.time, d.name, d.phone, d.cell_phone, d.status, d.recruited_by, 
       		 d.signup_date, getdate() as today
   	from sandbox_va_2.va02_event_participants as d
     where event not ilike '_Cancelled%'
