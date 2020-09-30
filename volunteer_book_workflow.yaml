@@ -10,7 +10,7 @@ workflow:
       input:
         job_id: 89317446
       on-success:
-        - va02_event_participant_mod_89628943
+        - va02_region_assign_sheet_import_89337612
     va02_region_assign_sheet_import_89337612:
       action: civis.run_job
       input:
@@ -21,7 +21,6 @@ workflow:
       action: civis.run_job
       input:
         job_id: 89628943
-      join: all
       on-success:
         - set_current_status_sql_92268182
     set_current_status_sql_92268182:
