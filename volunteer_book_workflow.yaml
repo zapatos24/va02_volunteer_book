@@ -1,28 +1,25 @@
 version: '2.0'
 workflow:
   tasks:
-    export_va02_participants_mod_89626669:
-      action: civis.run_job
-      input:
-        job_id: 89626669
     va02_event_participant_sheet_import_89317446:
       action: civis.run_job
       input:
         job_id: 89317446
       on-success:
-        - va02_region_assign_sheet_import_89337612
+        - va02_event_p_mod_sql_89628943
     va02_region_assign_sheet_import_89337612:
       action: civis.run_job
       input:
         job_id: 89337612
       on-success:
-        - va02_event_participant_mod_89628943
-    va02_event_participant_mod_89628943:
+        - va02_event_p_mod_sql_89628943
+    va02_event_p_mod_sql_89628943:
       action: civis.run_job
       input:
         job_id: 89628943
       on-success:
         - set_current_status_sql_92268182
+      join: all
     set_current_status_sql_92268182:
       action: civis.run_job
       input:
@@ -35,3 +32,7 @@ workflow:
         job_id: 92460577
       on-success:
         - export_va02_participants_mod_89626669
+    export_va02_participants_mod_89626669:
+      action: civis.run_job
+      input:
+        job_id: 89626669
