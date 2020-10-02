@@ -28,6 +28,7 @@ from(
      			 d.recruited_by, d.signup_date, getdate() as today
   	from sandbox_va_2.va02_event_participants as d
     where d.event not ilike '_Cancelled%' and
+     			d.event not ilike '%1:1%' and
      			d.role != 'Textbanker'
        )
     ) as p
@@ -50,7 +51,8 @@ left outer join
               order by recruit_sub.date asc, recruit_sub.time asc
               rows between unbounded preceding and unbounded following) as last_recruit
   from sandbox_va_2.va02_event_participants as recruit_sub
-  where recruit_sub.recruited_by is not null
+  where recruit_sub.recruited_by is not null and
+  			recruit_sub.role != 'Textbanker'
   order by recruit_sub.vanid
 ) as lr
 on p.vanid = lr.vanid
@@ -87,6 +89,7 @@ left outer join
     from sandbox_va_2.va02_event_participants
     where status = 'Completed' and 
     			event not ilike '_Cancelled%' and
+    			event not ilike '%1:1%' and
     			role != 'Textbanker'
     group by vanid
   ) as comp
@@ -100,6 +103,7 @@ left outer join
     from sandbox_va_2.va02_event_participants
     where status = 'Declined' or status = 'No Show' and 
     			event not ilike '_Cancelled%' and
+    			event not ilike '%1:1%' and
     			role != 'Textbanker'
     group by vanid
   ) as flk
@@ -118,6 +122,7 @@ left outer join
          select sub1.vanid, sub1.date, count(sub1.event) as count_t1
          from sandbox_va_2.va02_event_participants as sub1
          where sub1.event not ilike '_Cancelled%' and 
+    					 sub1.event not ilike '%1:1%' and
          			 sub1.status = 'Completed' and
          			 sub1.role != 'Textbanker'
          group by 1,2
@@ -126,7 +131,8 @@ left outer join
        (
          select sub2.vanid, sub2.date, count(sub2.event) as count_t2
          from sandbox_va_2.va02_event_participants as sub2
-         where event not ilike '_Cancelled%' and 
+         where sub2.event not ilike '_Cancelled%' and 
+    					 sub2.event not ilike '%1:1%' and
          			 sub2.status = 'Completed' and
          			 sub2.role != 'Textbanker'
          group by 1,2
@@ -150,7 +156,8 @@ left outer join
        (
          select sub1.vanid, sub1.date, count(sub1.event) as count_t1
          from sandbox_va_2.va02_event_participants as sub1
-         where sub1.event not ilike '_Cancelled%' and 
+         where sub1.event not ilike '_Cancelled%' and
+    					 sub1.event not ilike '%1:1%' and
          			 sub1.status = 'Completed' and
          			 sub1.role != 'Textbanker'
          group by 1,2
@@ -160,6 +167,7 @@ left outer join
          select sub2.vanid, sub2.date, count(sub2.event) as count_t2
          from sandbox_va_2.va02_event_participants as sub2
          where sub2.event not ilike '_Cancelled%' and 
+    					 sub2.event not ilike '%1:1%' and
          			 sub2.status = 'Completed' and
          			 sub2.role != 'Textbanker'
          group by 1,2
