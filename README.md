@@ -34,3 +34,21 @@ The workhorse query of this process is the va02_event_participant_moded query wh
 - Calculates 14 and 30 day rolling counts for how many events a particular VAN ID has completed to calculate status of VAN IDs over time (not currently utilized in report)
 - Creates a "proper_organizer" column that assigns a volunteer to an organizer based on last_recruit (if no assigned organizer exists) or prefers the last recruit in certain special cases
 
+Next, the set_current_status query checks all vanids for how many events they've completed in the last 14 and 30 days, and assigns a status based on the count. Currently it is set up as follows:
+
+- Super Active: at least 2 completed shifts in the last 14 days
+- Active: less than 2 completed shifts in the last 14 days, at least 2 completed in the last 30 days
+- Almost Active: 1 completed  shift in the last 30 days
+- Drop Off: Has once signed up, but has not completed a shift in the last 30 days
+
+#### Python Script
+
+With the modified event participant list, the python script vanid_to_url takes each VAN ID and, via some investigation into how urls are built for each VAN ID, re-constructs a url for each VAN ID and adds that to the table.
+
+The fully modified table is exported out of Civis to a Google Sheet, which is then referenced by Google Data Studio for said report.
+
+
+## Review
+
+The report can be found [here](https://datastudio.google.com/reporting/86e40642-b278-411b-832c-d3ebdce69fef), should you wish to explore it on your own. Keep in mind that, due to scrubbing, some VAN IDs will be repeated in the report.
+
